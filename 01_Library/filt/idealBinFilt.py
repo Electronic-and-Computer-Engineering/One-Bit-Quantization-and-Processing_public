@@ -40,11 +40,17 @@ def idealBinFilt(sNbins, mRanges, vMaxVal, sMinVal, bFull=False):
         sMaxBin     = sg.rad2bin(mRanges[2],sNbins)
         sMaxBinStp  = sg.rad2bin(mRanges[3],sNbins)
         
-        np.tan
+        if sMinBinStp==sMinBin:
+            vIdealSpectrum[sMinBinStp] = vMaxVal
+        else:
+            vIdealSpectrum[sMinBinStp:sMinBin] = np.linspace(0.0, vMaxVal, (sMinBin-sMinBinStp)) #np.tan(np.linspace(0.0, vMaxVal, (sMinBin-sMinBinStp)))#
         
-        vIdealSpectrum[sMinBinStp:sMinBin] = 0.5 * (1 + np.tan(np.linspace(0.0, vMaxVal, (sMinBin-sMinBinStp)))) #np.tan(np.linspace(0.0, vMaxVal, (sMinBin-sMinBinStp)))#
         vIdealSpectrum[sMinBin:sMaxBin]    = vMaxVal
-        vIdealSpectrum[sMaxBin:sMaxBinStp] = 0.5 * (1 + np.tan(np.linspace(vMaxVal, 0.0, (sMaxBinStp-sMaxBin)))) #np.tan(np.linspace(vMaxVal, 0.0, (sMaxBinStp-sMaxBin)))#
+        
+        if sMaxBin==sMaxBinStp:
+            vIdealSpectrum[sMaxBinStp] = vMaxVal
+        else:
+            vIdealSpectrum[sMaxBin:sMaxBinStp] = np.linspace(vMaxVal, 0.0, (sMaxBinStp-sMaxBin)) #np.tan(np.linspace(vMaxVal, 0.0, (sMaxBinStp-sMaxBin)))#
         
     elif mRanges.ndim == 2:
         sRows = mRanges.shape[0] 
@@ -59,10 +65,18 @@ def idealBinFilt(sNbins, mRanges, vMaxVal, sMinVal, bFull=False):
             sMaxBin     = sg.rad2bin(mRanges[i,2],sNbins)
             sMaxBinStp  = sg.rad2bin(mRanges[i,3],sNbins)
             
-            vIdealSpectrum[sMinBinStp:sMinBin] = 0.5 * (1 + np.tanh(np.linspace(0.0, vMaxVal[i], (sMinBin-sMinBinStp))))
+            if sMinBinStp==sMinBin:
+                vIdealSpectrum[sMinBinStp] = vMaxVal[i]
+            else:
+                vIdealSpectrum[sMinBinStp:sMinBin] = np.linspace(0.0, vMaxVal[i], (sMinBin-sMinBinStp)) #np.tan(np.linspace(0.0, vMaxVal, (sMinBin-sMinBinStp)))#
+            
             vIdealSpectrum[sMinBin:sMaxBin]    = vMaxVal[i]
-            vIdealSpectrum[sMaxBin:sMaxBinStp] = 0.5 * (1 + np.tanh(np.linspace(vMaxVal[i], 0.0, (sMaxBinStp-sMaxBin))))
-        
+            
+            if sMaxBin==sMaxBinStp:
+                vIdealSpectrum[sMaxBinStp] = vMaxVal[i]
+            else:
+                vIdealSpectrum[sMaxBin:sMaxBinStp] = np.linspace(vMaxVal[i], 0.0, (sMaxBinStp-sMaxBin)) #np.tan(np.linspace(vMaxVal, 0.0, (sMaxBinStp-sMaxBin)))#
+     
     if bFull == True:
         vUpperHalf = vIdealSpectrum[0:sNbins//2].copy()
         vUpperHalf = vUpperHalf[::-1]
