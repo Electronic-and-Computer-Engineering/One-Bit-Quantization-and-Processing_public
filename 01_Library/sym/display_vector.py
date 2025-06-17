@@ -1,38 +1,26 @@
 from IPython.display import display, Math
 import sympy as symp
 
-def display_vector(name: str,
-                   symbolic_vec,
-                   values: list = None,
-                   transpose=True,
-                   precision=3,
-                   show_symbolic=True,
-                   show_values=True):
+def display_vector(name: str, vec_sym, values=None, show_symbolic=True, show_values=True, round_digits=3):
     """
-    Display a symbolic vector in LaTeX, optionally with numerical values and transpose.
-
-    Parameters:
-    - name: variable name (e.g. 'v_x')
-    - symbolic_vec: sympy.Matrix of symbols
-    - values: list of numerical values (optional)
-    - transpose: whether to display as a row vector with superscript T
-    - precision: rounding precision for numeric display
-    - show_symbolic: whether to show symbolic form
-    - show_values: whether to show numeric (evaluated) form
-    """
-    assert show_symbolic or show_values, "At least one of show_symbolic or show_values must be True"
+    Display a vector symbolically and/or with values in LaTeX.
     
-    latex_T = r"^{\mathsf{T}}" if transpose else ""
-    vec_disp = symbolic_vec.T if transpose else symbolic_vec
-
-    # Show symbolic version
+    Args:
+        name: Name of the vector (used in LaTeX output)
+        vec_sym: SymPy Matrix of symbolic vector
+        values: Optional list or Matrix of values to show
+        show_symbolic: Whether to display the symbolic vector
+        show_values: Whether to display evaluated vector
+        round_digits: Number of decimal digits to round values
+    """
+    # Symbolic display
     if show_symbolic:
-        display(Math(fr"\mathbf{{{name}}} = {symp.latex(vec_disp)}{latex_T}"))
+        display(Math(r"\mathbf{" + name + r"} = " + symp.latex(vec_sym.transpose()) + r"^T"))
 
-    # Show numeric version
+    # Value-based display
     if show_values and values is not None:
-        assert len(symbolic_vec) == len(values), "Length mismatch between symbolic vector and value list"
-        subs_dict = {symbolic_vec[i]: values[i] for i in range(len(values))}
-        evaluated = symbolic_vec.subs(subs_dict).evalf(precision)
-        evaluated_disp = evaluated.T if transpose else evaluated
-        display(Math(fr"\mathbf{{{name}}} = {symp.latex(evaluated_disp)}{latex_T}"))
+        # Ensure it's a SymPy Matrix
+        if not isinstance(values, symp.Matrix):
+            values = symp.Matrix(values)
+        values = values.evalf(round_digits)
+        display(Math(r"\mathbf{" + name + r"} = " + symp.latex(values.transpose()) + r"^T"))
