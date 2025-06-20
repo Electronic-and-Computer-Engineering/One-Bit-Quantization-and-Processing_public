@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.signal import get_window
 
-def dftMat(N, K, range=None, normalize=False, unit='rad', window=None):
+def dftMat(N, K, range=None, omega_k=None, normalize=False, unit='rad', window=None):
     """
     Constructs a complex-valued DFT matrix (K x N), optionally windowed.
 
@@ -30,12 +30,13 @@ def dftMat(N, K, range=None, normalize=False, unit='rad', window=None):
     n = np.arange(N)
 
     # Frequency axis
-    if range is None:
-        omega_k = 2 * np.pi * np.arange(K) / K
-    else:
+    if omega_k is not None:
+        omega_k = np.asarray(omega_k)
+        K = len(omega_k)
+    elif range is not None:
         range = np.asarray(range)
-        if range.shape <= (2,):
-            raise ValueError("range must consist of at LEAST 2 elements")
+        if range.shape[0] < 2:
+            raise ValueError("range must contain at least two elements")
 
         if unit == 'f':
             range = 2 * np.pi * range
@@ -43,6 +44,10 @@ def dftMat(N, K, range=None, normalize=False, unit='rad', window=None):
             raise ValueError("unit must be either 'rad' or 'f'")
 
         omega_k = np.linspace(range[0], range[-1], K)
+    else:
+        if K is None:
+            raise ValueError("Either 'K' or 'omega_k' must be specified.")
+        omega_k = 2 * np.pi * np.arange(K) / K
 
     # Base complex exponentials
     F = np.exp(-1j * np.outer(omega_k, n))  # shape (K, N)
